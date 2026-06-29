@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CMUHCH VEP</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="home-shell">
+      <header class="topbar" aria-label="CMUHCH VEP header">
+        <div class="brand">
+          <img
+            class="brand-mark"
+            src="assets/cmuhch-emblem-transparent.png"
+            alt="中國醫藥大學新竹附設醫院院徽"
+          />
+          <div>
+            <strong>CMUHCH VEP</strong>
+            <span>Guided GRCh38 Variant Annotation Workflow</span>
+          </div>
+        </div>
+        <div class="system-status" aria-label="System status">
+          <span class="status-dot"></span>
+          Phase 1 MVP
+        </div>
+      </header>
+
+      <section class="hero" aria-label="Homepage">
+        <div class="hero-content">
+          <p class="eyebrow">AVENIO post-run analysis</p>
+          <h1>CMUHCH VEP</h1>
+          <p class="lead">
+            依照下機後分析流程逐步引導，從 SNV/INDEL VCF 上傳、樣本篩選、MAF/CNV/Ratio
+            判讀，到 Transcript:Coding Change 整理、VEP input 清單與第一版 Excel 輸出。
+          </p>
+
+          <div class="action-row">
+            <button class="primary-button" type="button" data-scroll-target="analysis-mvp">
+              建立新分析
+            </button>
+            <button class="secondary-button" type="button" data-scroll-target="workflow">
+              查看流程模板
+            </button>
+          </div>
+
+          <div class="quick-start" aria-label="Quick start form">
+            <label class="quick-case">
+              Case ID
+              <input id="case-id" type="text" placeholder="例如：VEP-2026-001" />
+            </label>
+            <label class="quick-panel">
+              Panel
+              <select id="panel-name">
+                <option>AVENIO Oncology Analysis</option>
+                <option>Custom oncology workflow</option>
+              </select>
+            </label>
+            <label class="upload-control quick-snv">
+              Upload SNV VCF
+              <input id="snv-upload" type="file" accept=".vcf,.txt" />
+              <span id="snv-file-label">選擇 snv-Unfiltered.vcf</span>
+            </label>
+            <label class="upload-control quick-indel">
+              Upload INDEL VCF
+              <input id="indel-upload" type="file" accept=".vcf,.txt" />
+              <span id="indel-file-label">選擇 indel-Unfiltered.vcf</span>
+            </label>
+          </div>
+        </div>
+
+        <aside class="robot-panel" aria-label="檢寶AI機器人">
+          <img src="assets/cmuhch-vep-hero.png" alt="檢寶AI機器人與 NextSeq 550 定序儀" />
+        </aside>
+      </section>
+
+      <section id="workflow" class="workflow" aria-label="Guided workflow steps">
+        <div class="workflow-heading">
+          <p class="eyebrow">Step-by-step workflow</p>
+          <h2>階段 1 分析路徑</h2>
+        </div>
+
+        <ol class="step-grid">
+          <li>
+            <span>01</span>
+            <strong>Upload</strong>
+            <p>上傳 AVENIO SNV / INDEL unfiltered VCF，讀取 INFO 欄位與樣本。</p>
+          </li>
+          <li>
+            <span>02</span>
+            <strong>Sample</strong>
+            <p>依 Sample Adapter 選擇欲分析 sample。</p>
+          </li>
+          <li>
+            <span>03</span>
+            <strong>Filter</strong>
+            <p>排除 synonymous，套用 MAF、CNV、ratio 規則。</p>
+          </li>
+          <li>
+            <span>04</span>
+            <strong>VEP Input</strong>
+            <p>自動整理 Transcript:Coding Change。</p>
+          </li>
+          <li>
+            <span>05</span>
+            <strong>Review</strong>
+            <p>檢查每一步筆數與保留/排除結果。</p>
+          </li>
+          <li>
+            <span>06</span>
+            <strong>Export</strong>
+            <p>輸出 Excel 可開啟的第一版結果檔。</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="analysis-mvp" class="analysis-mvp" aria-label="Phase 1 MVP analysis">
+        <div class="workflow-heading">
+          <p class="eyebrow">Phase 1 MVP</p>
+          <h2>單機版流程分析</h2>
+        </div>
+
+        <div class="mvp-layout">
+          <aside class="progress-panel">
+            <ol class="progress-list" id="progress-list">
+              <li class="active">1. 上傳 VCF</li>
+              <li>2. 選擇 Sample</li>
+              <li>3. 自動篩選</li>
+              <li>4. 建立 VEP input</li>
+              <li>5. 匯出 Excel</li>
+            </ol>
+            <div class="detected-columns" id="detected-columns">
+              <strong>欄位偵測</strong>
+              <span>尚未上傳 VCF</span>
+            </div>
+          </aside>
+
+          <div class="analysis-panel">
+            <div class="analysis-toolbar">
+              <label class="file-drop">
+                <input id="mvp-snv-upload" type="file" accept=".vcf,.txt" />
+                <span>上傳 SNV VCF</span>
+              </label>
+              <label class="file-drop">
+                <input id="mvp-indel-upload" type="file" accept=".vcf,.txt" />
+                <span>上傳 INDEL VCF</span>
+              </label>
+              <label class="sample-picker">
+                Sample Adapter
+                <select id="sample-select" disabled>
+                  <option>請先上傳 VCF</option>
+                </select>
+              </label>
+              <button id="run-analysis" class="primary-button" type="button" disabled>
+                執行階段 1 分析
+              </button>
+              <button id="export-excel" class="secondary-button" type="button" disabled>
+                匯出 Excel
+              </button>
+            </div>
+
+            <div class="metric-grid" aria-label="Analysis counts">
+              <div>
+                <span id="metric-total">0</span>
+                <strong>原始 variants</strong>
+              </div>
+              <div>
+                <span id="metric-sample">0</span>
+                <strong>選取 sample</strong>
+              </div>
+              <div>
+                <span id="metric-synonymous">0</span>
+                <strong>排除 synonymous 後</strong>
+              </div>
+              <div>
+                <span id="metric-maf">0</span>
+                <strong>MAF &lt;1% 或 N/A</strong>
+              </div>
+              <div>
+                <span id="metric-ratio">0</span>
+                <strong>Ratio 篩選後</strong>
+              </div>
+              <div>
+                <span id="metric-vep">0</span>
+                <strong>VEP input</strong>
+              </div>
+            </div>
+
+            <div class="review-grid">
+              <section>
+                <div class="section-title">
+                  <h3>篩選預覽</h3>
+                  <span id="preview-note">尚無資料</span>
+                </div>
+                <div class="table-wrap">
+                  <table id="preview-table">
+                    <thead></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section>
+                <div class="section-title">
+                  <h3>VEP input 清單</h3>
+                  <span id="vep-note">Transcript:Coding Change</span>
+                </div>
+                <textarea id="vep-output" readonly placeholder="分析後會在這裡產生 VEP input 清單"></textarea>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="vep-engine" class="vep-engine" aria-label="Local Ensembl VEP GRCh38">
+        <div class="workflow-heading">
+          <p class="eyebrow">Phase 2 local annotation</p>
+          <h2>本機 Ensembl VEP GRCh38</h2>
+        </div>
+
+        <div class="vep-grid">
+          <aside class="vep-status-card">
+            <div class="section-title">
+              <h3>環境狀態</h3>
+              <span id="vep-server-note">localhost API</span>
+            </div>
+            <div id="vep-status-list" class="vep-status-list">
+              <p>尚未檢查 VEP runner / cache 狀態。</p>
+            </div>
+            <div class="vep-actions">
+              <button id="check-vep-status" class="secondary-button" type="button">檢查 VEP 環境</button>
+              <button id="run-vep" class="primary-button" type="button" disabled>執行本機 VEP</button>
+            </div>
+          </aside>
+
+          <div class="vep-result-card">
+            <div class="section-title">
+              <h3>VEP 結果預覽</h3>
+              <span id="vep-run-note">請先完成階段 1 VEP input</span>
+            </div>
+            <div class="table-wrap vep-table-wrap">
+              <table id="vep-result-table">
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <details class="command-output">
+              <summary>VEP command / stdout / stderr</summary>
+              <pre id="vep-command-output">尚無執行紀錄</pre>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section id="interpretation" class="interpretation" aria-label="Merged interpretation workspace">
+        <div class="workflow-heading">
+          <p class="eyebrow">Phase 3 interpretation</p>
+          <h2>結果合併與初步判讀</h2>
+        </div>
+
+        <div class="interpretation-toolbar">
+          <button id="build-interpretation" class="primary-button" type="button" disabled>
+            產生初步判讀表
+          </button>
+          <button id="export-interpretation" class="secondary-button" type="button" disabled>
+            匯出判讀 Excel
+          </button>
+          <div class="interpretation-note" id="interpretation-note">
+            請先完成階段 1；若階段 2 已有 VEP 結果，會自動合併回填。
+          </div>
+        </div>
+
+        <div class="metric-grid interpretation-metrics" aria-label="Interpretation summary">
+          <div>
+            <span id="metric-pathogenic">0</span>
+            <strong>Pathogenic candidate</strong>
+          </div>
+          <div>
+            <span id="metric-vus">0</span>
+            <strong>VUS / uncertain</strong>
+          </div>
+          <div>
+            <span id="metric-benign">0</span>
+            <strong>Benign likely</strong>
+          </div>
+          <div>
+            <span id="metric-recheck">0</span>
+            <strong>Recheck needed</strong>
+          </div>
+          <div>
+            <span id="metric-manual">0</span>
+            <strong>人工選 transcript</strong>
+          </div>
+          <div>
+            <span id="metric-cnv-candidates">0</span>
+            <strong>CNV candidate</strong>
+          </div>
+        </div>
+
+        <div class="review-grid interpretation-grid">
+          <section>
+            <div class="section-title">
+              <h3>初步判讀表</h3>
+              <span id="interpretation-table-note">尚無資料</span>
+            </div>
+            <div class="table-wrap interpretation-table-wrap">
+              <table id="interpretation-table">
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section>
+            <div class="section-title">
+              <h3>人工確認清單</h3>
+              <span id="manual-review-note">NM_ 優先，XM_ 排除</span>
+            </div>
+            <div id="manual-review-list" class="manual-review-list">
+              <p>尚未產生判讀結果。</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="formalization" class="formalization" aria-label="Advanced database and audit workflow">
+        <div class="workflow-heading">
+          <p class="eyebrow">Phase 4 governance</p>
+          <h2>進階資料庫與正式化</h2>
+        </div>
+
+        <div class="formal-grid">
+          <section class="formal-card">
+            <div class="section-title">
+              <h3>資料庫版本管理</h3>
+              <span id="db-version-note">固定 release 驗證</span>
+            </div>
+            <div id="db-version-list" class="version-list">
+              <p>請先檢查 VEP 環境。</p>
+            </div>
+          </section>
+
+          <section class="formal-card">
+            <div class="section-title">
+              <h3>QC / Audit Log</h3>
+              <span id="audit-note">操作者、時間、參數紀錄</span>
+            </div>
+            <div class="audit-form">
+              <label>
+                Operator
+                <input id="operator-name" type="text" placeholder="輸入操作者" />
+              </label>
+              <label>
+                QC note
+                <input id="qc-note" type="text" placeholder="例如：人工確認 low VAF variants" />
+              </label>
+              <button id="save-audit" class="primary-button" type="button" disabled>保存分析紀錄</button>
+            </div>
+            <div id="audit-list" class="audit-list">
+              <p>尚無 audit log。</p>
+            </div>
+          </section>
+        </div>
+
+        <section class="formal-card report-card">
+          <div class="section-title">
+            <h3>報告候選清單</h3>
+            <span id="report-candidate-note">Pathogenic / recheck candidates</span>
+          </div>
+          <div class="table-wrap">
+            <table id="report-candidate-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

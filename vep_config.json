@@ -1,0 +1,71 @@
+{
+  "docker_image": "ensemblorg/ensembl-vep:release_116.0",
+  "vep_runner": "wsl_source",
+  "assembly": "GRCh38",
+  "species": "homo_sapiens",
+  "host_data_dir": "C:\\vep_data",
+  "wsl_data_dir": "/mnt/c/vep_data",
+  "wsl_vep_script": "/root/ensembl-vep/vep",
+  "wsl_distro": "CMUHCHVEP",
+  "wsl_user": "root",
+  "container_data_dir": "/data",
+  "cache_dir_in_container": "/data/cache",
+  "fasta_path_in_container": "",
+  "jobs_dir": "data/vep_jobs",
+  "audit_dir": "data/audit_logs",
+  "database_versions": {
+    "vep_release": "116",
+    "assembly": "GRCh38.p14",
+    "cache": "homo_sapiens_refseq VEP cache release 116 GRCh38",
+    "clinvar": "VEP cache / optional custom source",
+    "dbsnp": "VEP cache",
+    "cosmic": "VCF INFO evidence columns / VEP cache if available",
+    "tcga": "VCF INFO evidence columns",
+    "gnomad": "VEP cache"
+  },
+  "plugins": {
+    "dbnsfp": {
+      "enabled": false,
+      "host_path": "C:\\vep_data\\plugins\\dbNSFP.gz",
+      "container_path": "/data/plugins/dbNSFP.gz",
+      "fields": [
+        "clinvar_clnsig",
+        "clinvar_id",
+        "CADD_phred",
+        "REVEL_score",
+        "MetaRNN_score"
+      ],
+      "version": "not configured"
+    },
+    "cadd": {
+      "enabled": false,
+      "snv_host_path": "C:\\vep_data\\plugins\\whole_genome_SNVs.tsv.gz",
+      "indel_host_path": "C:\\vep_data\\plugins\\InDels.tsv.gz",
+      "snv_container_path": "/data/plugins/whole_genome_SNVs.tsv.gz",
+      "indel_container_path": "/data/plugins/InDels.tsv.gz",
+      "version": "not configured"
+    }
+  },
+  "timeout_seconds": 1800,
+  "vep_options": [
+    "--cache",
+    "--offline",
+    "--format",
+    "hgvs",
+    "--tab",
+    "--symbol",
+    "--transcript_version",
+    "--hgvs",
+    "--sift",
+    "p",
+    "--polyphen",
+    "p",
+    "--af_gnomade",
+    "--af_gnomadg",
+    "--check_existing",
+    "--refseq",
+    "--canonical",
+    "--mane",
+    "--force_overwrite"
+  ]
+}
